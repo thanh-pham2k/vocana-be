@@ -1,0 +1,92 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String    @id @default(uuid()) @map("id")
+  username       String    @unique @map("username")
+  email          String    @map("email")
+  passwordHash   String    @map("password_hash")
+  status         String    @map("status")
+  createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  fullName       String?   @map("full_name")
+  avatarUrl      String?   @map("avatar_url")
+  birthday       DateTime? @map("birthday") @db.Date
+  targetLanguage String?   @map("target_language")
+  targetLevel    String?   @map("target_level")
+  bio            String?
+
+  userRoles      UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id        String     @id @default(uuid()) @map("id")
+  name      String
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId String @map("user_id")
+  roleId String @map("role_id")
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model Question {
+  id             String    @id @default(uuid()) @map("id")
+  questionType   String    @map("question_type")
+  language       String?   @map("language")
+  level          String?   @map("level")
+  skill          String?   @map("skill")
+  difficulty     String?   @map("difficulty")
+  content        String    @map("content")
+  options        Json?     @map("options")
+  correctAnswer  String?   @map("correct_answer")
+  sampleAnswer   String?   @map("sample_answer")
+  explanation    String?   @map("explanation")
+  mediaUrl       String?   @map("media_url")
+  topic          String?   @map("topic")
+  createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Newly added fields
+  examId         String?   @map("exam_id")
+  parentId       String?   @map("parent_id")
+  position       Int?      @map("position")
+
+  @@map("questions")
+} 
+
+model Exam {
+  id             String   @id @default(uuid())
+  title          String
+  description    String?
+  level          String?
+  duration       Int?
+  createdBy      String? @map("created_by")
+  createdAt      DateTime @default(now())    @map("created_at") // nên map luôn
+
+  @@map("exams")
+}
+
+model ExamQuestion {
+  examId      String
+  questionId  String
+  position    Int?
+  group       String?
+
+  @@id([examId, questionId])
+}
+
