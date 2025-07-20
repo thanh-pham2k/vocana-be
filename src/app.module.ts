@@ -8,6 +8,7 @@ import { QuestionsModule } from './questions/questions.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ExamModule } from './exam/exam.module';
 import { ExamQuestionModule } from './exam_questions/exam-question.module';
+import { ExamResultsModule } from './exam_results/exam-results.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { AuthModule } from './auth/auth.module';
     PrismaModule,
     ExamModule,
     ExamQuestionModule,
+    ExamResultsModule,
     AuthModule,
   ],
   controllers: [AppController],

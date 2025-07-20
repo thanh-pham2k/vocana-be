@@ -22,6 +22,7 @@ model User {
   bio            String?
 
   userRoles      UserRole[]
+  examResults    ExamResult[]
 
   @@map("users")
 }
@@ -66,6 +67,8 @@ model Question {
   parentId       String?   @map("parent_id")
   position       Int?      @map("position")
 
+  userAnswers    UserAnswer[]
+
   @@map("questions")
 } 
 
@@ -78,6 +81,8 @@ model Exam {
   createdBy      String? @map("created_by")
   createdAt      DateTime @default(now())    @map("created_at") // nên map luôn
 
+  examResults    ExamResult[]
+
   @@map("exams")
 }
 
@@ -88,5 +93,43 @@ model ExamQuestion {
   group       String?
 
   @@id([examId, questionId])
+}
+
+model ExamResult {
+  id              String      @id @default(uuid()) @map("id")
+  examId          String      @map("exam_id")
+  userId          String      @map("user_id")
+  score           Int         @map("score")
+  totalQuestions  Int         @map("total_questions")
+  percentage      Decimal?    @map("percentage") @db.Decimal(5,2)
+  timeSpent       Int?        @map("time_spent")
+  startedAt       DateTime?   @map("started_at") @db.Timestamptz(6)
+  completedAt     DateTime    @default(now()) @map("completed_at") @db.Timestamptz(6)
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  exam            Exam        @relation(fields: [examId], references: [id])
+  user            User        @relation(fields: [userId], references: [id])
+  userAnswers     UserAnswer[]
+
+  @@unique([examId, userId, completedAt])
+  @@map("exam_results")
+}
+
+model UserAnswer {
+  id              String      @id @default(uuid()) @map("id")
+  examResultId    String      @map("exam_result_id")
+  questionId      String      @map("question_id")
+  questionType    String      @map("question_type")
+  userAnswer      String?     @map("user_answer")
+  userAnswers     Json?       @map("user_answers")
+  isCorrect       Boolean     @default(false) @map("is_correct")
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  examResult      ExamResult  @relation(fields: [examResultId], references: [id])
+  question        Question    @relation(fields: [questionId], references: [id])
+
+  @@map("user_answers")
 }
 
